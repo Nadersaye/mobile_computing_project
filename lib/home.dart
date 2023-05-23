@@ -96,7 +96,7 @@ class _TennisGamePageState extends State<TennisGamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple[400],
+        backgroundColor: Colors.purple[300],
         title: Text('Tennis Game',
         style: TextStyle(
           fontSize: 30,
@@ -117,7 +117,7 @@ class _TennisGamePageState extends State<TennisGamePage> {
               width: double.infinity,
               alignment: Alignment.centerLeft,
               decoration: BoxDecoration(
-                color: Colors.purple[400],
+                color: Colors.purple[300],
                 borderRadius: BorderRadius.all(Radius.circular(16))
               ),
               child: Text(
@@ -135,7 +135,7 @@ class _TennisGamePageState extends State<TennisGamePage> {
               width: double.infinity,
               alignment: Alignment.centerLeft,
               decoration: BoxDecoration(
-                color: Colors.purple[400],
+                color: Colors.purple[300],
                 borderRadius: BorderRadius.all(Radius.circular(16))
               ),
               child: Text(

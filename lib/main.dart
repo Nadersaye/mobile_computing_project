@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_computing_project/first.dart';
+import 'package:mobile_computing_project/home.dart';
 
 
 void main() {
@@ -13,7 +13,7 @@ class TennisApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tennis App',
-      home: FirstScreen(),
+      home: TennisGamePage(),
     );
   }
 }
