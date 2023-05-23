@@ -23,6 +23,7 @@ class _TennisGamePageState extends State<TennisGamePage> {
   double rotationZ = 0.0;
   double mass = .210 ; // Mass of the racket in kg
   List<AccelerometerData> zValues = [];
+  List<AccelerometerData> xValues = [];
   double maxZValue = 0.0;
   Timer? timer;
   @override
@@ -37,11 +38,12 @@ class _TennisGamePageState extends State<TennisGamePage> {
     });
 
     gyroscopeEvents.listen((GyroscopeEvent event) {
-      setState(() {
-        rotationX = event.x;
-        rotationY = event.y;
-        rotationZ = event.z;
-      });
+     setState(() {
+      rotationX = event.x;
+      rotationY = event.y;
+      rotationZ = event.z;
+      xValues.add(AccelerometerData(rotationX, DateTime.now()));
+     });
     });
   }
 
@@ -81,10 +83,16 @@ class _TennisGamePageState extends State<TennisGamePage> {
   }
 
   double calculateRotationAngle() {
-    // Calculate the rotation angle using gyroscope data
-    double angle = rotationZ;
-    return angle;
-  }
+  DateTime currentTime = DateTime.now();
+  DateTime fourSecondsAgo = currentTime.subtract(Duration(seconds: 4));
+  List<double> recentXValues = xValues
+      .where((data) => data.timestamp.isAfter(fourSecondsAgo))
+      .map((data) => data.value)
+      .toList();
+
+  double maxRotationX = recentXValues.isNotEmpty ? recentXValues.reduce(max) : 0.0;
+  return maxRotationX;
+}
 
   @override
   void dispose() {
@@ -96,7 +104,6 @@ class _TennisGamePageState extends State<TennisGamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple[300],
         title: Text('Tennis Game',
         style: TextStyle(
           fontSize: 30,
@@ -117,13 +124,13 @@ class _TennisGamePageState extends State<TennisGamePage> {
               width: double.infinity,
               alignment: Alignment.centerLeft,
               decoration: BoxDecoration(
-                color: Colors.purple[300],
-                borderRadius: BorderRadius.all(Radius.circular(16))
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                border: Border.all(color: Colors.black)
               ),
               child: Text(
                 'Force : ${calculateForce().toStringAsFixed(2)} N',
                 style: TextStyle(fontSize: 24,
-                color: Colors.white,
+                color: Colors.black,
                 fontWeight: FontWeight.w500
                 ),
               ),
@@ -135,13 +142,13 @@ class _TennisGamePageState extends State<TennisGamePage> {
               width: double.infinity,
               alignment: Alignment.centerLeft,
               decoration: BoxDecoration(
-                color: Colors.purple[300],
-                borderRadius: BorderRadius.all(Radius.circular(16))
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                border: Border.all(color: Colors.black)
               ),
               child: Text(
                 'Rotation Angle : ${calculateRotationAngle().toStringAsFixed(2)}',
                 style: TextStyle(fontSize: 24,
-                color: Colors.white,
+                color: Colors.black,
                 fontWeight: FontWeight.w500
                 ),
               ),
