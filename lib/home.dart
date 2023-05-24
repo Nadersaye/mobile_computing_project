@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:sensors/sensors.dart';
-class AccelerometerData {
+class SensorData {
   final double value;
   final DateTime timestamp;
 
-  AccelerometerData(this.value, this.timestamp);
+  SensorData(this.value, this.timestamp);
 }
 
 class TennisGamePage extends StatefulWidget {
@@ -22,9 +22,10 @@ class _TennisGamePageState extends State<TennisGamePage> {
   double rotationY = 0.0;
   double rotationZ = 0.0;
   double mass = .210 ; // Mass of the racket in kg
-  List<AccelerometerData> zValues = [];
-  List<AccelerometerData> xValues = [];
+  List<SensorData> zValues = [];
+  List<SensorData> angleXValues = [];
   double maxZValue = 0.0;
+  double maxRotationX=0.0;
   Timer? timer;
   @override
   void initState() {
@@ -33,16 +34,14 @@ class _TennisGamePageState extends State<TennisGamePage> {
     accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
         accelerationZ = event.z;
-        zValues.add(AccelerometerData(accelerationZ, DateTime.now()));
+        zValues.add(SensorData(accelerationZ, DateTime.now()));
       });
     });
 
     gyroscopeEvents.listen((GyroscopeEvent event) {
      setState(() {
       rotationX = event.x;
-      rotationY = event.y;
-      rotationZ = event.z;
-      xValues.add(AccelerometerData(rotationX, DateTime.now()));
+      angleXValues.add(SensorData(rotationX, DateTime.now()));
      });
     });
   }
@@ -50,6 +49,7 @@ class _TennisGamePageState extends State<TennisGamePage> {
   void startApp() {
     timer = Timer.periodic(Duration(seconds: 4), (_) {
       maxForce();
+      calculateRotationAngle();
     });
   }
 
@@ -69,15 +69,12 @@ class _TennisGamePageState extends State<TennisGamePage> {
       maxZValue = recentZValues.reduce(max);
       print('Maximum Z Value in the last 4 seconds: $maxZValue');
     } else {
-      // If no values were recorded in the last 4 seconds, set maxZValue to 0
       maxZValue = 0.0;
     }
 
-    // Perform any desired operations with the maximum value
   }
 
   double calculateForce() {
-    // Calculate the force using the formula F = m * a
     double force = mass * maxZValue;
     return force;
   }
@@ -85,7 +82,7 @@ class _TennisGamePageState extends State<TennisGamePage> {
   double calculateRotationAngle() {
   DateTime currentTime = DateTime.now();
   DateTime fourSecondsAgo = currentTime.subtract(Duration(seconds: 4));
-  List<double> recentXValues = xValues
+  List<double> recentXValues = angleXValues
       .where((data) => data.timestamp.isAfter(fourSecondsAgo))
       .map((data) => data.value)
       .toList();
@@ -93,6 +90,10 @@ class _TennisGamePageState extends State<TennisGamePage> {
   double maxRotationX = recentXValues.isNotEmpty ? recentXValues.reduce(max) : 0.0;
   return maxRotationX;
 }
+double calculateRotationAngleDegree() {
+    double degree = ((7* maxRotationX*180)/7);
+    return degree;
+  }
 
   @override
   void dispose() {
@@ -146,7 +147,7 @@ class _TennisGamePageState extends State<TennisGamePage> {
                 border: Border.all(color: Colors.black)
               ),
               child: Text(
-                'Rotation Angle : ${calculateRotationAngle().toStringAsFixed(2)}',
+                'Rotation Angle : ${calculateRotationAngleDegree().toStringAsFixed(2)}',
                 style: TextStyle(fontSize: 24,
                 color: Colors.black,
                 fontWeight: FontWeight.w500
@@ -246,6 +247,8 @@ class _TennisGamePageState extends State<TennisGamePage> {
                            rotationZ = 0.0; 
                            zValues = [];
                            maxZValue = 0.0;
+                           angleXValues = [];
+                           maxRotationX=0;
                         });
                       },
                       child: Container(
